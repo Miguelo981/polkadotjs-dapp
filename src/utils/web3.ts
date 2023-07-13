@@ -8,11 +8,10 @@ export function isValidAmount(amount: string | number): boolean {
   if (parsedAmount <= 0) return false;
 
   try {
-    const toBN = new BN(amount);
+    new BN(amount);
 
-    return true
-  }
-  catch (e) {
+    return true;
+  } catch (e) {
     return false;
   }
 }
@@ -20,7 +19,7 @@ export function isValidAmount(amount: string | number): boolean {
 export function parseAmount(amount: string | number, decimals: number = POLKADOT_DECIMALS): BN {
   const parsedValue = fromUnit(amount, decimals);
 
-  console.log(parsedValue)
+  console.log(parsedValue);
 
   if (!isBn(parsedValue)) return;
 
@@ -40,8 +39,8 @@ export function fromUnit(inputValue: string | number, decimals: number = POLKADO
 export function toUnit(inputValue: string | number, decimals: number = POLKADOT_DECIMALS): BN {
   const base = new BN(10).pow(new BN(decimals));
   const dm = new BN(inputValue).divmod(base);
-  
-  const result = `${dm.div.toString()}.${dm.mod.toString().padStart(base.toString().length, '0')}`
+
+  const result = `${dm.div.toString()}.${dm.mod.toString().padStart(base.toString().length, '0')}`;
 
   return new BN(result, base.toNumber());
 }
