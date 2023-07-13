@@ -1,18 +1,14 @@
-import { ApiPromise, WsProvider } from "@polkadot/api";
-import {
-  ALICE,
-  POLKADOT_TESTNET_WS_PROVIDER,
-  POLKADOT_TRANSFERABLE,
-} from "../constants";
-import { isAddress } from "@polkadot/util-crypto";
+import { ApiPromise, WsProvider } from '@polkadot/api';
+import { POLKADOT_TESTNET_WS_PROVIDER, POLKADOT_TRANSFERABLE } from '@/constants';
+import { isAddress } from '@polkadot/util-crypto';
 
-import type { TransactionProps } from "../models/polkadot";
-import { isValidAmount, parseAmount } from "../utils/web3";
-import { web3Accounts, web3FromAddress } from "@polkadot/extension-dapp";
-import type { Signer, SubmittableExtrinsic, ISubmittableResult } from "@polkadot/api/types";
-import { balance, symbol } from "../stores/accounts";
-import type { TokenBalanceResponse, TransactionPreview } from "../models/token";
-import type { BN } from "@polkadot/util";
+import type { TransactionProps } from '@/models/polkadot';
+import { isValidAmount, parseAmount } from '@/utils/web3';
+import { web3Accounts, web3FromAddress } from '@polkadot/extension-dapp';
+import type { Signer, SubmittableExtrinsic, ISubmittableResult } from '@polkadot/api/types';
+import { balance, symbol } from '@/stores/accounts';
+import type { TokenBalanceResponse, TransactionPreview } from '@/models/token';
+import { BN, isHex } from '@polkadot/util';
 
 export class PolkadotService {
   private static instance: PolkadotService;
@@ -35,16 +31,20 @@ export class PolkadotService {
       this.api.rpc.system.version(),
     ]);
 
-    console.log(
-      `You are connected to chain ${chain} using ${nodeName} v${nodeVersion}`
-    );
+    console.log(`You are connected to chain ${chain} using ${nodeName} v${nodeVersion}`);
 
     const [account] = await web3Accounts();
 
     const res = await this.getBalance(account.address);
 
-    balance.set(res.balance);
-    symbol.set(res.symbol);
+    if (!res) return;
+
+    this.setBalance(res);
+  }
+
+  private setBalance(tokenBalance: TokenBalanceResponse): void {
+    balance.set(tokenBalance.balance);
+    symbol.set(tokenBalance.symbol);
   }
 
   public static getInstance(): PolkadotService {
@@ -55,12 +55,12 @@ export class PolkadotService {
   }
 
   public async getBalance(address: string): Promise<TokenBalanceResponse> {
-    if (!this.api) return;
+    if (!this.api || !isAddress(address)) return;
 
     const { data } = await this.api.query.system.account(address);
 
-    const formattedBalance = this.api.createType("Balance", data.free).toHuman();
-    const [tokenBalance, symbol] = formattedBalance.toString().split(" ");
+    const formattedBalance = this.api.createType('Balance', data.free).toHuman();
+    const [tokenBalance, symbol] = formattedBalance.toString().split(' ');
 
     return {
       balance: Number(tokenBalance),
@@ -70,7 +70,7 @@ export class PolkadotService {
   }
 
   public async getChainDecimals(): Promise<number> {
-    const chainDecimals = this.api.registry.chainDecimals[0]
+    const chainDecimals = this.api.registry.chainDecimals[0];
 
     return chainDecimals;
   }
@@ -83,23 +83,30 @@ export class PolkadotService {
     return chain.toString();
   }
 
-  public async calcFee(from: string, tx: SubmittableExtrinsic<"promise", ISubmittableResult>): Promise<BN> {
+  public async calcFee(
+    from: string,
+    tx: SubmittableExtrinsic<'promise', ISubmittableResult>
+  ): Promise<BN> {
     if (!this.api) return;
 
     const { partialFee } = await tx.paymentInfo(from);
 
-    return partialFee.toBn();
+    return new BN(partialFee);
   }
 
-  public async previewTransfer({ from, to, amount }: TransactionProps): Promise<TransactionPreview> {
+  public async previewTransfer({
+    from,
+    to,
+    amount,
+  }: TransactionProps): Promise<TransactionPreview> {
     if (!this.api) return;
 
     if (!isAddress(from) || !isAddress(to) || !isValidAmount(amount)) return;
 
     const parsedAmount = parseAmount(amount);
-    console.log(parsedAmount);
 
-    const tx = this.api.tx.balances.transfer(to, parsedAmount);
+    const tx = await this.api.tx.balances.transfer(to, parsedAmount);
+
     const fee = await this.calcFee(from, tx);
 
     return {
@@ -116,14 +123,12 @@ export class PolkadotService {
     const parsedAmount = parseAmount(amount);
     const signer: Signer = (await web3FromAddress(from)).signer;
 
-    const tx = this.api.tx.balances.transfer(to, parsedAmount);
-    const fee = await this.calcFee(from, tx);
+    const tx = await this.api.tx.balances.transfer(to, parsedAmount);
 
-    console.log(fee);
     try {
       const hash = await tx.signAndSend(from, { signer });
 
-      console.log("Transfer sent with hash", hash.toHex(), hash);
+      console.log('Transfer sent with hash', hash.toHex(), hash);
       return hash;
     } catch (error) {
       console.log(error);
@@ -135,7 +140,7 @@ export class PolkadotService {
 
     const parsedData = JSON.stringify(data);
 
-    const tx = this.api.tx.system.remark(parsedData)
+    const tx = this.api.tx.system.remark(parsedData);
     const fee = await this.calcFee(from, tx);
 
     return {
@@ -149,32 +154,29 @@ export class PolkadotService {
 
     const signer: Signer = (await web3FromAddress(from)).signer;
 
-    const parsedData = JSON.stringify(data);
+    //const parsedData = JSON.stringify(data);
 
-    const tx = this.api.tx.system.remark(parsedData)
-    const fee = await this.calcFee(from, tx);
-
-    console.log(
-      fee,
-      Number(fee) / POLKADOT_TRANSFERABLE
-    );
+    const tx = this.api.tx.system.remark(data);
 
     try {
       const txHash = await tx.signAndSend(from, { signer });
 
-      console.log("Transaction sent. Hash:", txHash.toHex());
+      console.log('Transaction sent. Hash:', txHash.toHex());
+
+      return txHash;
     } catch (error) {
       console.log(error);
     }
   }
 
   public async getBlockDataByHash<T>(blockHash: string): Promise<T> {
-    if (!this.api) return;
+    if (!this.api || !isHex(blockHash)) return;
 
     const block = await this.api.rpc.chain.getBlock(blockHash);
-
     const mablock = block.block.extrinsics[2];
 
-    return JSON.parse(mablock.method.toHuman().args?.remark);
+    const content = mablock.method.toHuman().args?.remark;
+
+    return typeof content === 'string' ? JSON.parse(content) : content;
   }
 }
