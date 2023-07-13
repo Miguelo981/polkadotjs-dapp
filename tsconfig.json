@@ -17,10 +17,11 @@
     /* "paths": {
       "$lib/*": ["src/lib/*"],
     } */
-    "typeRoots": [
-      "node_modules/@types",
-      "src/types"
-    ]
+    "paths": {
+      "@/*": ["./src/*", "./dist/*"]
+    },
+    "types": ["vitest/globals"],
+    "typeRoots": ["node_modules/@types", "src/types"]
   },
   "include": ["src/**/*.d.ts", "src/**/*.ts", "src/**/*.js", "src/**/*.svelte"],
   "references": [{ "path": "./tsconfig.node.json" }]
