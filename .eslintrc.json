@@ -1,24 +1,31 @@
 {
-  "extends": [
-    // 'eslint:recommended',
-    "plugin:svelte/recommended"
-  ],
+  "root": true,
+  "extends": ["eslint:recommended", "plugin:svelte/recommended", "prettier"],
   "parser": "@typescript-eslint/parser",
   "parserOptions": {
+    "ecmaVersion": 2021,
+    "sourceType": "module",
     "project": "./tsconfig.json",
     "extraFileExtensions": [".svelte"]
   },
+  "env": {
+    "browser": true,
+    "es2021": true
+  },
+  "plugins": ["@typescript-eslint", "svelte3"],
   "overrides": [
     {
       "files": ["*.svelte"],
-      "parser": "svelte-eslint-parser",
-      "parserOptions": {
-        "parser": "@typescript-eslint/parser"
-      }
+      "processor": "svelte3/svelte3"
     }
   ],
-  "plugins": [
-    "prettier",
-    "svelte3"
-  ]
+  "globals": {
+    "vi": true
+  },
+  "settings": {
+    "svelte3/typescript": true
+  },
+  "rules": {
+    // Add your custom rules here
+  }
 }
