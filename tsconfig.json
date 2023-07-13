@@ -20,7 +20,7 @@
     "paths": {
       "@/*": ["./src/*", "./dist/*"]
     },
-    "types": ["vitest/globals"],
+    "types": ["vitest/globals", "svelte", "@testing-library/jest-dom"],
     "typeRoots": ["node_modules/@types", "src/types"]
   },
   "include": ["src/**/*.d.ts", "src/**/*.ts", "src/**/*.js", "src/**/*.svelte"],

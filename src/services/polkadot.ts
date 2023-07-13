@@ -1,5 +1,9 @@
 import { ApiPromise, WsProvider } from '@polkadot/api';
-import { POLKADOT_TESTNET_WS_PROVIDER, POLKADOT_TRANSFERABLE } from '@/constants';
+import {
+  POLKADOT_DECIMALS,
+  POLKADOT_TESTNET_WS_PROVIDER,
+  POLKADOT_TRANSFERABLE,
+} from '@/constants';
 import { isAddress } from '@polkadot/util-crypto';
 
 import type { TransactionProps } from '@/models/polkadot';
@@ -86,12 +90,12 @@ export class PolkadotService {
   public async calcFee(
     from: string,
     tx: SubmittableExtrinsic<'promise', ISubmittableResult>
-  ): Promise<BN> {
+  ): Promise<number> {
     if (!this.api) return;
 
     const { partialFee } = await tx.paymentInfo(from);
 
-    return new BN(partialFee);
+    return partialFee.toNumber();
   }
 
   public async previewTransfer({
@@ -106,12 +110,12 @@ export class PolkadotService {
     const parsedAmount = parseAmount(amount);
 
     const tx = await this.api.tx.balances.transfer(to, parsedAmount);
-
     const fee = await this.calcFee(from, tx);
+    const parsedFee = Number(fee) / POLKADOT_TRANSFERABLE;
 
     return {
-      fee: Number(fee) / POLKADOT_TRANSFERABLE,
-      total: Number(parsedAmount) + Number(fee) / POLKADOT_TRANSFERABLE,
+      fee: parsedFee,
+      total: parsedAmount.div(new BN(POLKADOT_TRANSFERABLE)).toNumber() + parsedFee,
     };
   }
 

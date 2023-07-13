@@ -52,7 +52,7 @@
   <section class="grid justify-items-center items-center h-screen w-screen">
     <div class="flex flex-col items-center space-y-12">
       <AccountInfo {address} {balanceAmount} {chainSymbol} />
-      <TransferForm />
+      <TransferForm fromAddress={address} />
       <StoreDataForm />
       <AccountList />
     </div>

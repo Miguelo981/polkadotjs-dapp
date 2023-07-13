@@ -1,32 +1,21 @@
 <script lang="ts">
   import Snackbar, { Label as LabelSnackbar } from '@smui/snackbar';
-  import { accounts } from '../stores/accounts';
   import { POLKADOT_DECIMALS } from '../constants';
   import { PolkadotService } from '../services/polkadot';
   import TxPreview from './TxPreview.svelte';
   import { isValidAmount } from '../utils/web3';
   import { isAddress } from '@polkadot/util-crypto';
 
+  export let fromAddress: string = '';
+
   let snackbarSuccess: Snackbar;
 
   const polkadotService = PolkadotService.getInstance();
 
   let fee: number = 0.0,
-    fromAddress = '',
     toAddress = '',
     amount = null,
     insufficientBalance = false;
-
-  accounts.subscribe((accounts) => {
-    if (accounts.length === 0) {
-      fromAddress = '';
-      return;
-    }
-
-    const [account] = accounts;
-
-    fromAddress = account.address;
-  });
 
   const handleToAddress = (event) => {
     const { value } = event.target;
@@ -58,7 +47,13 @@
   const handleInsufficientBalance = async () => {
     if (!fromAddress || !amount) return;
 
-    const { balance } = await polkadotService.getBalance(fromAddress);
+    const res = await polkadotService.getBalance(fromAddress);
+
+    if (!res) {
+      return;
+    }
+
+    const { balance } = res;
 
     insufficientBalance = balance < amount + fee;
   };
@@ -67,6 +62,10 @@
     if (!fromAddress || !toAddress || !amount) return;
 
     const res = await polkadotService.previewTransfer({ from: fromAddress, to: toAddress, amount });
+
+    if (!res) {
+      return;
+    }
 
     fee = res.fee;
   };
@@ -79,7 +78,6 @@
     }
 
     snackbarSuccess.open();
-    console.log(res);
   };
 </script>
 
@@ -110,7 +108,11 @@
   </div>
   <TxPreview {fee} />
   <button
-    disabled={!amount || fromAddress?.length < 1 || toAddress?.length < 1 || insufficientBalance}
+    disabled={!amount ||
+      fromAddress?.length < 1 ||
+      toAddress?.length < 1 ||
+      !isAddress(toAddress) ||
+      insufficientBalance}
     class="border border-transparent py-2 rounded-lg bg-gray-800 disabled:cursor-not-allowed text-white font-medium transition ease-in-out duration-300 hover:border-indigo-500"
     type="button"
     on:click={handleSend}>Send</button

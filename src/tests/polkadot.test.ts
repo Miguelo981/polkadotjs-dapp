@@ -1,14 +1,15 @@
 import { PolkadotService } from '@/services/polkadot';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-
-const FROM_ADDRESS = '5Ct5vgodMUqsJ1LU5R9kxrhF8sY85AybySWBSrqXV96jjFd1';
-const INVALID_FROM_ADDRESS = 'GFVDSgsdFGDSGvdfg';
-const TO_ADDRESS = '5GZLvVh3T2A82p7FpFLAa493gkc4TmmsMQ2ML7dhwkmKoxEw';
-const INVALID_TO_ADDRESS = 'GFVD2SgsdFGDSGv433dfg';
-const VALID_BLOCK_HASH = '0xadc04bab468f327b3e40e03bf04d3d8d904e058611f2128513a1e2753c264ba3';
-const INVALID_BLOCK_HASH = '1f2128513a1e2753c264ba3';
-const AMOUNT = 10;
-const INVALID_AMOUNT = -10;
+import {
+  AMOUNT,
+  FROM_ADDRESS,
+  INVALID_AMOUNT,
+  INVALID_BLOCK_HASH,
+  INVALID_FROM_ADDRESS,
+  INVALID_TO_ADDRESS,
+  TO_ADDRESS,
+  VALID_BLOCK_HASH,
+} from './consts';
 
 vi.mock('@/services/polkadot', async (importOriginal) => {
   const module: any = await importOriginal();
@@ -56,10 +57,12 @@ vi.mock('@polkadot/api', async (importOriginal) => {
           toHex: vi.fn().mockReturnValue('mocked-tx-hash'),
         }),
         paymentInfo: vi.fn().mockResolvedValue({
-          partialFee: 0.1,
+          partialFee: {
+            toNumber: vi.fn().mockReturnValue(100000000000),
+          },
           weight: 100,
           class: 'normal',
-          partialFeeAt: vi.fn().mockResolvedValue(0.1),
+          partialFeeAt: vi.fn().mockResolvedValue(100000000000),
         }),
       }),
     },
