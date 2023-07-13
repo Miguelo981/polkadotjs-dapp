@@ -1,17 +1,16 @@
 <script lang="ts">
-    import { symbol } from "../stores/accounts";
+  import { symbol } from '../stores/accounts';
 
-    export let fee: number;
+  export let fee: number;
 
-    let chainSymbol: string = 'DOT';
+  let chainSymbol: string = 'DOT';
 
-    symbol.subscribe((value) => {
-        chainSymbol = value;
-    })
-
+  symbol.subscribe((value) => {
+    chainSymbol = value;
+  });
 </script>
 
 <div class="flex justify-between">
-    <span>Network fees</span>
-    <span>{ fee } { chainSymbol }</span>
+  <span>Network fees</span>
+  <span>{fee} {chainSymbol}</span>
 </div>
