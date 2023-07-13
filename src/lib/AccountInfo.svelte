@@ -14,13 +14,21 @@
 </script>
 
 <div class="text-center">
-  <h2 class="text-6xl font-black mb-2 pb-5 border-b border-gray-600">
-    {balanceAmount.toFixed(4)} <span class="text-5xl">{chainSymbol}</span>
+  <h2 class="text-4xl md:text-6xl font-black mb-2 pb-5 border-b border-gray-600">
+    {balanceAmount.toFixed(4)} <span class="text-2xl md:text-5xl">{chainSymbol}</span>
   </h2>
   <!-- svelte-ignore a11y-click-events-have-key-events -->
   <!-- svelte-ignore a11y-no-static-element-interactions -->
-  <div on:click={handleCopyAddress} class="flex items-center space-x-1 cursor-pointer">
-    <span title="Click to copy the address" class="font-light">{address}</span>
+  <div
+    on:click={handleCopyAddress}
+    class="flex justify-center items-center space-x-1 cursor-pointer"
+  >
+    <p
+      title="Click to copy the address"
+      class="font-light truncate md:text-ellipsis w-[75%] md:w-full"
+    >
+      {address}
+    </p>
     <svg
       xmlns="http://www.w3.org/2000/svg"
       class="w-6 h-auto"

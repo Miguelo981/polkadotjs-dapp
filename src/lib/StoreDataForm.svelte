@@ -2,13 +2,13 @@
   import Snackbar, { Label as LabelSnackbar } from '@smui/snackbar';
   import { JSONEditor } from 'svelte-jsoneditor';
   import { PolkadotService } from '../services/polkadot';
-  import { accounts } from '../stores/accounts';
   import TxPreview from './TxPreview.svelte';
+
+  export let fromAddress: string = '';
 
   const polkadotService = PolkadotService.getInstance();
 
   let snackbarSuccess: Snackbar,
-    fromAddress = '',
     fee: number = 0.0,
     insufficientBalance = false,
     content = {
@@ -23,17 +23,6 @@
         string: 'Hello World',
       },
     };
-
-  accounts.subscribe((accounts) => {
-    if (accounts.length === 0) {
-      fromAddress = '';
-      return;
-    }
-
-    const [account] = accounts;
-
-    fromAddress = account.address;
-  });
 
   const handleInsufficientBalance = async () => {
     if (!fromAddress) return;
@@ -62,8 +51,8 @@
   };
 </script>
 
-<form class="flex flex-col space-y-4 rounded-lg border border-gray-600 p-5">
-  <div class="min-w-[500px] w-full jse-theme-dark">
+<form class="flex flex-col space-y-4 rounded-lg border border-gray-600 p-5 w-full">
+  <div class="md:w-[500px] jse-theme-dark">
     <JSONEditor
       bind:content
       mode="text"

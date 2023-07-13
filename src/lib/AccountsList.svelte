@@ -37,13 +37,26 @@
 </script>
 
 <section
-  class="space-y-4 max-h-[250px] overflow-auto rounded-lg border-t border-b border-gray-600 p-5 w-[105%]"
+  class="space-y-4 max-h-[250px] overflow-auto rounded-lg border-t border-b border-gray-600 p-2 md:p-5 w-full md:w-[105%]"
 >
   {#each accountsValue as account}
-    <ul class="rounded-lg border border-gray-600 p-5 h-full [&>li]:flex [&>li]:justify-between">
-      <li><span class="font-bold">Address: </span>{account.address}</li>
-      <li><span class="font-bold">Name: </span>{account.meta.name}</li>
-      <li><span class="font-bold">Type: </span>{account.type}</li>
+    <ul
+      class="rounded-lg border border-gray-600 p-2 md:p-5 h-full [&>li]:flex [&>li]:justify-between [&>li>span]:font-bold [&>li>span]:md:text-base [&>li>span]:text-xs [&>li>p]:md:text-base [&>li>p]:text-xs w-full"
+    >
+      <li>
+        <span>Address: </span>
+        <p class="truncate md:text-ellipsis w-[75%] md:w-full">
+          {account.address}
+        </p>
+      </li>
+      <li>
+        <span>Name: </span>
+        <p>{account.meta.name}</p>
+      </li>
+      <li>
+        <span>Type: </span>
+        <p>{account.type}</p>
+      </li>
     </ul>
   {/each}
 </section>

@@ -5,3 +5,11 @@ export const POLKADOT_TESTNET_WS_PROVIDER = import.meta.env.VITE_POLKADOT_TESTNE
 export const ALICE = '5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY';
 export const POLKADOT_DECIMALS = 12;
 export const POLKADOT_TRANSFERABLE = Math.pow(10, POLKADOT_DECIMALS);
+export const TABS = [
+  {
+    name: 'Transfer',
+  },
+  {
+    name: 'Store Data',
+  },
+];
